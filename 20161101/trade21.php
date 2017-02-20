@@ -1,17 +1,24 @@
 <?php
-// 每20分钟执行一次的脚本 */20 6-23 * * * php /var/www/html/20161101/trade21.php
+// 每20分钟执行一次的脚本 */20 7-23 * * * php /var/www/html/20161101/trade21.php
 	ini_set('date.timezone','Asia/Shanghai');
 	$con = mysql_connect("192.168.1.2", "root", "123456");
 	if(!$con){
 		die('Could not connect:' . mysql_error());
 	}
 	mysql_select_db("realtime", $con);
-	mysql_query("set names 'utf8'");
+	mysql_query("set names 'utf8'", $con);
+
+	$con4 = mysql_connect("192.168.1.5", "root", "123456");
+	if(!$con4){
+		die('Could not connect:' . mysql_error());
+	}
+	mysql_select_db("realtime", $con4);
+	mysql_query("set names 'utf8'", $con4);
 	
 	$start = floor(time()/100).'00';
 	$date = date('Y-m-d', $start);
 	$sql = "select * from holiday where date like '$date%'";
-	$result = mysql_query($sql);
+	$result = mysql_query($sql, $con);
 	$num = mysql_num_rows($result);
 	if ($num == 0) {
 		$isHoliday = 0;
@@ -33,21 +40,21 @@
 		$sql = "select * from historytradenum where isHoliday=1 and trade_type = 21 and time = '$time7'";
 	}
 	
-	$result = mysql_query($sql);
+	$result = mysql_query($sql, $con4);
 	$arr_history_num = mysql_fetch_array($result);
 	//新建一个数据用来存放各条线路的偏差
 	$arr_offset = array();
 
 	//实时接入量（线网）
 	$sql = "select count(*) from realt where RECEIVE_DATE > '$time4' and RECEIVE_DATE <= '$time5' and TRADE_DATE > '$time' and TRADE_DATE <= '$time0' and TRADE_TYPE = 21";
-	$result = mysql_query($sql);
+	$result = mysql_query($sql, $con);
 	$row = mysql_fetch_array($result);
 	$all = $row[0];
 	$arr_offset[] = abs($arr_history_num['全网线'] - $all) / $arr_history_num['全网线'];//全网线的偏差
 
 	//各线路
 	$sql = "select station.line_name,count(*) from realt,station where realt.TRADE_ADDRESS = station.station_id and RECEIVE_DATE > '$time4' and RECEIVE_DATE <= '$time5' and TRADE_DATE > '$time' and TRADE_DATE <= '$time0' and TRADE_TYPE = 21 GROUP BY station.line_name";
-	$result = mysql_query($sql);
+	$result = mysql_query($sql, $con);
 	$arr = array('11号线'=>0,'1号线'=>0,'2号线'=>0,'3号线'=>0,'4号线'=>0,'5号线'=>0,'7号线'=>0,'9号线'=>0);
 	while ($row = mysql_fetch_array($result)) {
 		$arr[$row[0]] = $row[1];
@@ -65,7 +72,7 @@
 	//插入
 	$tmp = $arr['11号线'].','.$arr['1号线'].','.$arr['2号线'].','.$arr['3号线'].','.$arr['4号线'].','.$arr['5号线'].','.$arr['7号线'].','.$arr['9号线'];
 	$new_sql = "insert into trade21 values(null,$start,$all,$tmp,1,'$time7',$error,$isHoliday)";
-	mysql_query($new_sql);
+	mysql_query($new_sql, $con4);
 
 	//历史平均（延时大于20）
 	if($isHoliday == 0){
@@ -73,14 +80,14 @@
 	}else{
 		$sql = "select * from historytradescale where isHoliday=1 and trade_type=21 and time='$time7'";
 	}
-	$result = mysql_query($sql);
+	$result = mysql_query($sql, $con4);
 	$arr_history_num = mysql_fetch_array($result);
 	//新建一个数据用来存放各条线路的偏差
 	$arr_offset = array();
 
 	//平均延时（线网）
 	$sql3 = "select TRADE_DATE,RECEIVE_DATE from realt where RECEIVE_DATE > '$time4' and RECEIVE_DATE <= '$time5' and TRADE_DATE > '$time2' and TRADE_TYPE = 21";
-	$result = mysql_query($sql3);
+	$result = mysql_query($sql3, $con);
 	$arr = array();
 	while ($row = mysql_fetch_array($result)) {
 		$trade_time = strtotime(substr($row[0], 0, 10).' '.substr($row[0], 11, 8));
@@ -100,7 +107,7 @@
 	$all = round(array_sum($arr) / $N, 2);
 	//各线路
 	$sql3 = "select station.line_name,TRADE_DATE,RECEIVE_DATE from realt,station where realt.TRADE_ADDRESS = station.station_id and RECEIVE_DATE > '$time4' and RECEIVE_DATE <= '$time5' and TRADE_DATE > '$time2' and TRADE_TYPE = 21";
-	$result = mysql_query($sql3);
+	$result = mysql_query($sql3, $con);
 	$arr = array('11号线'=>array(),'1号线'=>array(),'2号线'=>array(),'3号线'=>array(),'4号线'=>array(),'5号线'=>array(),'7号线'=>array(),'9号线'=>array());
 	while ($row = mysql_fetch_array($result)) {
 		$trade_time = strtotime(substr($row[1], 0, 10).' '.substr($row[1], 11, 8));
@@ -197,7 +204,7 @@
 		   round(array_sum($arr['7号线']) / count($arr['7号线']), 2).','.
 		   round(array_sum($arr['9号线']) / count($arr['9号线']), 2);
 	$new_sql = "insert into trade21 values(null,$start,$all,$tmp,3,'$time7',null,$isHoliday)";
-	mysql_query($new_sql);
+	mysql_query($new_sql, $con4);
 	$tmp = $a11.','.$a1.','.$a2.','.$a3.','.$a4.','.$a5.','.$a7.','.$a9;
 	// 延时大于20min的交易占比
 	//判断数据是否异常
@@ -211,35 +218,36 @@
 	if ($error = 1) {
 		//获取上一个时间段的数据是否异常，每异常一次叠加1，不异常后归零
 		$sql_error_num_old = "select error from trade21 where num = 4 and time >= '$time6' ORDER BY time DESC limit 1";
-		$result = mysql_query($sql_error_num_old);
+		$result = mysql_query($sql_error_num_old, $con4);
 		if ($row = mysql_fetch_row($result)) {
 			$error = $row[0] + 1;
 		}
 	}
 	$new_sql = "insert into trade21 values(null,$start,$all2,$tmp,4,'$time7',$error,$isHoliday)";
-	mysql_query($new_sql);
+	mysql_query($new_sql, $con4);
 
 	//累计数据接入量
 	$sql = "select SUM(全网线),SUM(11号线),SUM(1号线),SUM(2号线),SUM(3号线),SUM(4号线),SUM(5号线),SUM(7号线),SUM(9号线) from trade21 where time>='$time6' and time<='$start' and num=1";
-	$result = mysql_query($sql);
+	$result = mysql_query($sql, $con4);
 	$row = mysql_fetch_array($result);
 	//插入
 	$tmp = $row[0].','.$row[1].','.$row[2].','.$row[3].','.$row[4].','.$row[5].','.$row[6].','.$row[7].','.$row[8];
 	$new_sql = "insert into trade21 values(null,$start,$tmp,5,'$time7',null,$isHoliday)";
-	mysql_query($new_sql);
+	mysql_query($new_sql, $con4);
 
 	// 判断当天的数据是否异常（给代号用）
 	$sql_error_num = "select error from trade21 where num =4 and time >= '$time6' order by error desc limit 1";
-	$result = mysql_query($sql_error_num);
+	$result = mysql_query($sql_error_num, $con4);
 	$row = mysql_fetch_row($result);
 	//异常时间段连续出现5次 判断当天数据为异常
 	if ($row[0] >= 5) {
 		mysql_select_db("subway", $con);
-		$result = mysql_query("select * from dayinfo where date='$date'");
+		$result = mysql_query("select * from dayinfo where date='$date'", $con);
 		$num = mysql_num_rows($result);
 		if ($num == 0) {
-			mysql_query("insert into dayinfo values(null, null, null, '$date', null, 1)");
+			mysql_query("insert into dayinfo values(null, null, null, '$date', null, 1)", $con);
 		}
 	}
 	
 	mysql_close($con);
+	mysql_close($con4);
