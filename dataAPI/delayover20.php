@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 header("Content-Type: text/html;charset=utf-8");//中文显示
 header("Access-Control-Allow-Origin: *");
 	$line = $_GET['line'];
@@ -10,7 +10,7 @@ header("Access-Control-Allow-Origin: *");
 	// $trade_type = '21';
 	// $time = '1478151868';
 	//连接数据库
-	$con = mysql_connect("192.168.1.2", "root", "123456");
+	$con = mysql_connect("192.168.1.5", "root", "123456");
 	if(!$con){
 		die('Could not connect:' . mysql_error());
 	}
