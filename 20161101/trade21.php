@@ -103,7 +103,10 @@
 		}
 	}
 	$all2 = round($n/$N, 2);
-	$arr_offset[] = abs($arr_history_num['全网线'] - $all2) / $arr_history_num['全网线'];//全网线的偏差
+	// $arr_offset[] = abs($arr_history_num['全网线'] - $all2) / $arr_history_num['全网线'];//全网线的偏差
+	if($all2 > $arr_history_num['全网线']){
+		$arr_offset[] = abs($arr_history_num['全网线'] - $all2) / $arr_history_num['全网线'];//全网线的偏差
+	}
 	$all = round(array_sum($arr) / $N, 2);
 	//各线路
 	$sql3 = "select station.line_name,TRADE_DATE,RECEIVE_DATE from realt,station where realt.TRADE_ADDRESS = station.station_id and RECEIVE_DATE > '$time4' and RECEIVE_DATE <= '$time5' and TRADE_DATE > '$time2' and TRADE_TYPE = 21";
@@ -123,7 +126,10 @@
 		}
 	}
 	$a11 = round($n/$N ,2);
-	$arr_offset[] = abs($arr_history_num['11号线'] - $a11) / $arr_history_num['11号线'];//11号线的偏差
+	// $arr_offset[] = abs($arr_history_num['11号线'] - $a11) / $arr_history_num['11号线'];//11号线的偏差
+	if($a11 > $arr_history_num['11号线']){
+		$arr_offset[] = abs($arr_history_num['11号线'] - $a11) / $arr_history_num['11号线'];//11号线的偏差
+	}
 	//对于1号线
 	$n = 0;
 	$N = count($arr['1号线']);
@@ -133,7 +139,10 @@
 		}
 	}
 	$a1 = round($n/$N ,2);
-	$arr_offset[] = abs($arr_history_num['1号线'] - $a1) / $arr_history_num['1号线'];//1号线的偏差
+	// $arr_offset[] = abs($arr_history_num['1号线'] - $a1) / $arr_history_num['1号线'];//1号线的偏差
+	if($a1 > $arr_history_num['1号线']){
+		$arr_offset[] = abs($arr_history_num['1号线'] - $a1) / $arr_history_num['1号线'];//1号线的偏差
+	}
 	//对于2号线
 	$n = 0;
 	$N = count($arr['2号线']);
@@ -143,7 +152,10 @@
 		}
 	}
 	$a2 = round($n/$N ,2);
-	$arr_offset[] = abs($arr_history_num['2号线'] - $a2) / $arr_history_num['2号线'];//2号线的偏差
+	// $arr_offset[] = abs($arr_history_num['2号线'] - $a2) / $arr_history_num['2号线'];//2号线的偏差
+	if($a2 > $arr_history_num['2号线']){
+		$arr_offset[] = abs($arr_history_num['2号线'] - $a2) / $arr_history_num['2号线'];//2号线的偏差
+	}
 	//对于3号线
 	$n = 0;
 	$N = count($arr['3号线']);
@@ -153,7 +165,10 @@
 		}
 	}
 	$a3 = round($n/$N ,2);
-	$arr_offset[] = abs($arr_history_num['3号线'] - $a3) / $arr_history_num['3号线'];//3号线的偏差
+	// $arr_offset[] = abs($arr_history_num['3号线'] - $a3) / $arr_history_num['3号线'];//3号线的偏差
+	if($a3 > $arr_history_num['3号线']){
+		$arr_offset[] = abs($arr_history_num['3号线'] - $a3) / $arr_history_num['3号线'];//3号线的偏差
+	}
 	//对于4号线
 	$n = 0;
 	$N = count($arr['4号线']);
@@ -163,7 +178,10 @@
 		}
 	}
 	$a4 = round($n/$N ,2);
-	$arr_offset[] = abs($arr_history_num['4号线'] - $a4) / $arr_history_num['4号线'];//4号线的偏差
+	// $arr_offset[] = abs($arr_history_num['4号线'] - $a4) / $arr_history_num['4号线'];//4号线的偏差
+	if($a4 > $arr_history_num['4号线']){
+		$arr_offset[] = abs($arr_history_num['4号线'] - $a4) / $arr_history_num['4号线'];//4号线的偏差
+	}
 	//对于5号线
 	$n = 0;
 	$N = count($arr['5号线']);
@@ -173,7 +191,10 @@
 		}
 	}
 	$a5 = round($n/$N ,2);
-	$arr_offset[] = abs($arr_history_num['5号线'] - $a5) / $arr_history_num['5号线'];//5号线的偏差
+	// $arr_offset[] = abs($arr_history_num['5号线'] - $a5) / $arr_history_num['5号线'];//5号线的偏差
+	if($a5 > $arr_history_num['5号线']){
+		$arr_offset[] = abs($arr_history_num['5号线'] - $a5) / $arr_history_num['5号线'];//5号线的偏差
+	}
 	//对于7号线
 	$n = 0;
 	$N = count($arr['7号线']);
@@ -183,7 +204,10 @@
 		}
 	}
 	$a7 = round($n/$N ,2);
-	$arr_offset[] = abs($arr_history_num['7号线'] - $a7) / $arr_history_num['7号线'];//7号线的偏差
+	// $arr_offset[] = abs($arr_history_num['7号线'] - $a7) / $arr_history_num['7号线'];//7号线的偏差
+	if($a7 > $arr_history_num['7号线']){
+		$arr_offset[] = abs($arr_history_num['7号线'] - $a7) / $arr_history_num['7号线'];//7号线的偏差
+	}
 	//对于9号线
 	$n = 0;
 	$N = count($arr['9号线']);
@@ -193,7 +217,10 @@
 		}
 	}
 	$a9 = round($n/$N ,2);
-	$arr_offset[] = abs($arr_history_num['9号线'] - $a9) / $arr_history_num['9号线'];//9号线的偏差
+	// $arr_offset[] = abs($arr_history_num['9号线'] - $a9) / $arr_history_num['9号线'];//9号线的偏差
+	if($a9 > $arr_history_num['9号线']){
+		$arr_offset[] = abs($arr_history_num['9号线'] - $a9) / $arr_history_num['9号线'];//9号线的偏差
+	}
 	//插入
 	$tmp = round(array_sum($arr['11号线']) / count($arr['11号线']), 2).','.
 		   round(array_sum($arr['1号线']) / count($arr['1号线']), 2).','.
